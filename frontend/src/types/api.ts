@@ -311,3 +311,19 @@ export interface CreateProductRequest {
 }
 
 export interface UpdateProductRequest extends Partial<CreateProductRequest> {}
+
+// ---- Admin: Variations -------------------------------------------------
+
+export interface CreateVariationRequest {
+  colorName: string;
+  colorHex: string;
+  variationSku?: string | null;
+  stockStatusText?: string | null;
+  isDefault?: boolean | null;
+  sortOrder?: number | null;
+  status?: VariationStatus | null;
+}
+
+export interface UpdateVariationRequest extends Partial<CreateVariationRequest> {
+  primaryImageId?: UUID | null;
+}
