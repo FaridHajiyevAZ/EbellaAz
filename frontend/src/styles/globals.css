@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================================================
+   Design tokens
+   -------------------------------------------------------------------------
+   Premium, minimalist, furniture-brand palette. All colors live as RGB
+   triplets so Tailwind can apply alpha via `text-fg/70` etc.
+   ========================================================================= */
+
+:root {
+  /* Surfaces */
+  --color-bg:       250 249 246;   /* warm off-white */
+  --color-bg-alt:   244 242 237;   /* slightly deeper for section zebra */
+  --color-surface:  255 255 255;   /* cards, modals */
+
+  /* Ink */
+  --color-fg:        17  17  17;   /* near-black body */
+  --color-muted:    107 107 107;   /* secondary text */
+  --color-subtle:   153 151 146;   /* tertiary, captions */
+  --color-border:   230 227 220;   /* 1px dividers */
+
+  /* Accent — muted walnut/bronze, not flashy */
+  --color-accent:     139 111  71;
+  --color-accent-fg:  255 255 255;
+
+  /* Semantic */
+  --color-success:   47 133  90;
+  --color-warning:  176 130  44;
+  --color-danger:   186  64  64;
+}
+
+/* Optional dark surface for admin focus / future dark mode hook */
+[data-theme='dark'] {
+  --color-bg:       18  18  17;
+  --color-bg-alt:   24  23  21;
+  --color-surface:  28  27  25;
+  --color-fg:       240 237 230;
+  --color-muted:    170 166 156;
+  --color-subtle:   120 117 110;
+  --color-border:    52  50  46;
+  --color-accent:   198 160 110;
+  --color-accent-fg: 17 17 17;
+}
+
+/* =========================================================================
+   Typography base
+   ========================================================================= */
+
+html { font-family: theme('fontFamily.sans'); }
+
+body {
+  font-feature-settings: 'cv11', 'ss01';
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* Display headings use Fraunces — restrained weight, subtle axis tuning. */
+.font-display,
+h1, h2, h3, .display {
+  font-family: theme('fontFamily.display');
+  font-feature-settings: 'ss01';
+}
+
+/* =========================================================================
+   Utility classes
+   ========================================================================= */
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .text-pretty  { text-wrap: pretty; }
+
+  .hairline {
+    @apply border-t border-border;
+  }
+
+  /* Subtle lift on interactive surfaces */
+  .lift {
+    transition: transform 220ms theme('transitionTimingFunction.out-smooth'),
+                box-shadow 220ms theme('transitionTimingFunction.out-smooth');
+  }
+  .lift:hover { transform: translateY(-1px); }
+
+  .focus-ring {
+    @apply outline-none ring-0 focus-visible:ring-2 focus-visible:ring-accent/60 focus-visible:ring-offset-2 focus-visible:ring-offset-bg;
+  }
+}
+
+/* =========================================================================
+   Resets / niceties
+   ========================================================================= */
+
+::selection {
+  background: rgb(var(--color-accent) / 0.22);
+  color: rgb(var(--color-fg));
+}
+
+img, svg, video { @apply max-w-full h-auto; }
+
+input, select, textarea, button { font: inherit; }
