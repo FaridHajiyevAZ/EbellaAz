@@ -36,6 +36,22 @@ public interface ProductVariationRepository extends JpaRepository<ProductVariati
                               @Param("exceptId") UUID exceptId);
 
     /**
+     * Clears the default flag across every variation of a product (including
+     * the one we're about to promote). The caller then sets the new default
+     * to true. The two-step dance keeps the partial-unique index on
+     * (product_id) WHERE is_default = true happy.
+     */
+    @Modifying(flushAutomatically = true, clearAutomatically = false)
+    @Query("""
+           update ProductVariation v
+              set v.defaultVariation = false
+            where v.product.id = :productId
+              and v.deletedAt is null
+              and v.defaultVariation = true
+           """)
+    int clearAllDefaults(@Param("productId") UUID productId);
+
+    /**
      * Bulk-loads active variations (with their primary image join-fetched)
      * for a page of products. Used by the public/admin listing to avoid
      * N+1 when picking cover images and color swatches.
