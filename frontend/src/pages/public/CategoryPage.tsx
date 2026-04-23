@@ -1,8 +1,9 @@
-import { useParams, Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Container } from '@/components/ui/Container';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { ProductCard } from '@/features/catalog/ProductCard';
 import { useCategoryTree, useProductList } from '@/hooks/useCatalog';
 import type { CategoryTreeNode } from '@/types/api';
 
@@ -72,37 +73,7 @@ export function CategoryPage() {
       ) : (
         <div className="grid gap-6 md:grid-cols-3 lg:grid-cols-4">
           {products.data?.items.map((p) => (
-            <Link
-              key={p.id}
-              to={`/product/${p.slug}`}
-              className="group focus-ring block rounded-lg"
-            >
-              <div className="aspect-[4/5] overflow-hidden rounded-lg bg-bg-alt">
-                {p.coverImageUrl ? (
-                  <img
-                    src={p.coverImageUrl}
-                    alt={p.name}
-                    loading="lazy"
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                  />
-                ) : null}
-              </div>
-              <div className="mt-3 flex items-start justify-between gap-2">
-                <div>
-                  <h3 className="text-sm font-medium text-fg">{p.name}</h3>
-                  {p.brand && <p className="text-xs text-muted">{p.brand}</p>}
-                </div>
-                <div className="flex shrink-0 items-center gap-1" aria-label="Available colors">
-                  {p.availableColorHexes.slice(0, 4).map((hex) => (
-                    <span
-                      key={hex}
-                      className="h-3 w-3 rounded-full border border-border"
-                      style={{ backgroundColor: hex }}
-                    />
-                  ))}
-                </div>
-              </div>
-            </Link>
+            <ProductCard key={p.id} product={p} />
           ))}
         </div>
       )}
