@@ -25,6 +25,10 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpec
     @EntityGraph(attributePaths = {"variations", "variations.images", "variations.primaryImage", "category"})
     Optional<Product> findWithVariationsBySlugAndDeletedAtIsNull(String slug);
 
+    /** Admin detail fetch by id using the same entity graph. */
+    @EntityGraph(attributePaths = {"variations", "variations.images", "variations.primaryImage", "category"})
+    Optional<Product> findWithVariationsByIdAndDeletedAtIsNull(UUID id);
+
     boolean existsBySlugAndDeletedAtIsNull(String slug);
 
     boolean existsBySkuAndDeletedAtIsNull(String sku);

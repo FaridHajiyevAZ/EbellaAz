@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,4 +34,17 @@ public interface ProductVariationRepository extends JpaRepository<ProductVariati
            """)
     int clearDefaultForOthers(@Param("productId") UUID productId,
                               @Param("exceptId") UUID exceptId);
+
+    /**
+     * Bulk-loads active variations (with their primary image join-fetched)
+     * for a page of products. Used by the public/admin listing to avoid
+     * N+1 when picking cover images and color swatches.
+     */
+    @Query("""
+           select v from ProductVariation v
+           left join fetch v.primaryImage
+           where v.product.id in :productIds
+             and v.deletedAt is null
+           """)
+    List<ProductVariation> findForProducts(@Param("productIds") Collection<UUID> productIds);
 }

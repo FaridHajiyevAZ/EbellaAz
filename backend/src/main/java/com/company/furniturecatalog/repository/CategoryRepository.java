@@ -64,4 +64,16 @@ public interface CategoryRepository extends JpaRepository<Category, UUID> {
 
     /** True if this category (or any descendant, via path containment) still has live rows. */
     boolean existsByParentIdAndDeletedAtIsNull(UUID parentId);
+
+    /**
+     * Every live category id whose ltree path is a descendant of (or equal to)
+     * the given path. One query regardless of tree depth — used by product
+     * listings that want "Home Furniture + everything under it".
+     */
+    @Query(value = """
+           select id from categories
+            where path <@ cast(:path as ltree)
+              and deleted_at is null
+           """, nativeQuery = true)
+    List<UUID> findDescendantIdsByPath(@Param("path") String path);
 }
