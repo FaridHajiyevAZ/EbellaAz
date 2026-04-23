@@ -1,16 +1,16 @@
 import { Link, useParams } from 'react-router-dom';
-import { ArrowRight, ChevronRight, MessageCircle } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
-import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ProductGallery } from '@/features/catalog/ProductGallery';
 import { ColorVariationSelector } from '@/features/catalog/ColorVariationSelector';
+import { WhatsAppInquiryButton } from '@/features/catalog/WhatsAppInquiryButton';
 import { useProductDetail } from '@/hooks/useCatalog';
 import { useSelectedVariation } from '@/hooks/useSelectedVariation';
-import type { ProductDetail } from '@/types/api';
+import type { ProductDetail, ProductVariationPublic } from '@/types/api';
 
 export function ProductPage() {
   const { slug } = useParams();
@@ -58,7 +58,7 @@ export function ProductPage() {
         <DetailsSection product={product} />
       </Container>
 
-      <StickyMobileCta product={product} colorName={selected?.colorName} />
+      <StickyMobileCta product={product} selected={selected} />
     </>
   );
 }
@@ -71,7 +71,7 @@ function InfoPanel({
   selectById,
 }: {
   product: ProductDetail;
-  selected: ReturnType<typeof useSelectedVariation>['selected'];
+  selected: ProductVariationPublic | null;
   selectById: (id: string) => void;
 }) {
   return (
@@ -111,16 +111,7 @@ function InfoPanel({
 
       {/* Actions */}
       <div className="mt-8 space-y-3">
-        {product.whatsappInquiry?.url ? (
-          <Button variant="accent" size="lg" asChild={false} className="w-full sm:w-auto">
-            <a href={product.whatsappInquiry.url} target="_blank" rel="noreferrer">
-              <MessageCircle className="h-4 w-4" />
-              Inquire on WhatsApp
-              <ArrowRight className="h-4 w-4" />
-            </a>
-          </Button>
-        ) : null}
-
+        <WhatsAppInquiryButton product={product} variation={selected} fullWidth />
         <p className="text-xs text-subtle">
           Availability, delivery, and customisation questions answered same day by our team.
         </p>
@@ -196,12 +187,11 @@ function DetailsSection({ product }: { product: ProductDetail }) {
 
 function StickyMobileCta({
   product,
-  colorName,
+  selected,
 }: {
   product: ProductDetail;
-  colorName?: string | null;
+  selected: ProductVariationPublic | null;
 }) {
-  if (!product.whatsappInquiry?.url) return null;
   return (
     <div
       className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-bg/95 backdrop-blur md:hidden"
@@ -212,16 +202,17 @@ function StickyMobileCta({
       <div className="mx-auto flex max-w-screen-md items-center gap-3 px-4 pt-3">
         <div className="min-w-0 flex-1">
           <div className="text-[10px] uppercase tracking-[0.14em] text-subtle">
-            {colorName ? 'Color' : 'Product'}
+            {selected?.colorName ? 'Color' : 'Product'}
           </div>
-          <div className="truncate text-sm text-fg">{colorName ?? product.name}</div>
+          <div className="truncate text-sm text-fg">{selected?.colorName ?? product.name}</div>
         </div>
-        <Button variant="accent" asChild={false} className="shrink-0">
-          <a href={product.whatsappInquiry.url} target="_blank" rel="noreferrer">
-            <MessageCircle className="h-4 w-4" />
-            Inquire
-          </a>
-        </Button>
+        <WhatsAppInquiryButton
+          product={product}
+          variation={selected}
+          compact
+          size="md"
+          className="shrink-0"
+        />
       </div>
     </div>
   );
