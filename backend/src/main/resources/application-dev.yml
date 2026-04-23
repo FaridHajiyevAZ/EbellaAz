@@ -1,0 +1,42 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/furniture_catalog
+    username: furniture
+    password: furniture
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        highlight_sql: true
+
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
+app:
+  cors:
+    allowed-origins: http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173
+  storage:
+    local:
+      root-path: ./var/uploads
+      public-base-url: http://localhost:8080/media
+
+logging:
+  level:
+    com.company.furniturecatalog: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.orm.jdbc.bind: TRACE
+    org.springframework.web: INFO
+    org.flywaydb: INFO
+
+springdoc:
+  swagger-ui:
+    enabled: true
