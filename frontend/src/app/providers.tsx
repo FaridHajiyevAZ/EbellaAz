@@ -1,6 +1,7 @@
 import { PropsWithChildren, useState } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import { ToastProvider } from '@/components/ui/Toast';
 
 /**
  * App-wide providers. Keep this list short and well-understood — anything
@@ -26,8 +27,10 @@ export function AppProviders({ children }: PropsWithChildren) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
-      {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+      <ToastProvider>
+        {children}
+        {import.meta.env.DEV && <ReactQueryDevtools initialIsOpen={false} />}
+      </ToastProvider>
     </QueryClientProvider>
   );
 }

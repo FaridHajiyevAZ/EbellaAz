@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/Button';
 import { Field, Input } from '@/components/ui/Input';
 import { useAuth } from '@/hooks/useAuth';
 import { AppApiError } from '@/api/client';
+import { useToast } from '@/components/ui/Toast';
+import { RedirectIfAuthed } from '@/routes/guards';
 
 const schema = z.object({
   email: z.string().email('Enter a valid email'),
@@ -16,9 +18,18 @@ const schema = z.object({
 type LoginValues = z.infer<typeof schema>;
 
 export function LoginPage() {
+  return (
+    <RedirectIfAuthed>
+      <LoginForm />
+    </RedirectIfAuthed>
+  );
+}
+
+function LoginForm() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const toast = useToast();
   const from = (location.state as { from?: Location } | null)?.from?.pathname ?? '/admin';
 
   const {
@@ -31,10 +42,12 @@ export function LoginPage() {
   const onSubmit = handleSubmit(async (values) => {
     try {
       await login.mutateAsync(values);
+      toast.success('Welcome back');
       navigate(from, { replace: true });
     } catch (err) {
       const msg = err instanceof AppApiError ? err.message : 'Unable to sign in';
       setError('password', { message: msg });
+      toast.error(msg);
     }
   });
 

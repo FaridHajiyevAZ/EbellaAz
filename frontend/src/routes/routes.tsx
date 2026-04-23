@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 import { PublicLayout } from '@/layouts/PublicLayout';
 import { AdminLayout } from '@/layouts/AdminLayout';
 import { AuthLayout } from '@/layouts/AuthLayout';
@@ -13,14 +13,16 @@ import { ContactPage }  from '@/pages/public/ContactPage';
 import { NotFoundPage } from '@/pages/public/NotFoundPage';
 
 // Admin
-import { LoginPage }      from '@/pages/admin/LoginPage';
-import { DashboardPage }  from '@/pages/admin/DashboardPage';
-import { CategoriesPage } from '@/pages/admin/CategoriesPage';
-import { ProductsPage }   from '@/pages/admin/ProductsPage';
-import { ProductEditPage } from '@/pages/admin/ProductEditPage';
-import { ContentPage }    from '@/pages/admin/ContentPage';
-import { MediaPage }      from '@/pages/admin/MediaPage';
-import { SettingsPage }   from '@/pages/admin/SettingsPage';
+import { LoginPage }             from '@/pages/admin/LoginPage';
+import { DashboardPage }         from '@/pages/admin/DashboardPage';
+import { CategoriesPage }        from '@/pages/admin/CategoriesPage';
+import { ProductsPage }          from '@/pages/admin/ProductsPage';
+import { ProductEditPage }       from '@/pages/admin/ProductEditPage';
+import { VariationsPage }        from '@/pages/admin/VariationsPage';
+import { HeroSlidesPage }        from '@/pages/admin/HeroSlidesPage';
+import { HomepageContentPage }   from '@/pages/admin/HomepageContentPage';
+import { MediaPage }             from '@/pages/admin/MediaPage';
+import { SettingsPage }          from '@/pages/admin/SettingsPage';
 
 export const router = createBrowserRouter([
   {
@@ -46,13 +48,17 @@ export const router = createBrowserRouter([
       </RequireAdmin>
     ),
     children: [
-      { index: true,          element: <DashboardPage /> },
-      { path: 'categories',   element: <CategoriesPage /> },
-      { path: 'products',     element: <ProductsPage /> },
-      { path: 'products/:id', element: <ProductEditPage /> },
-      { path: 'media',        element: <MediaPage /> },
-      { path: 'content',      element: <ContentPage /> },
-      { path: 'settings',     element: <SettingsPage /> },
+      { index: true,            element: <DashboardPage /> },
+      { path: 'categories',     element: <CategoriesPage /> },
+      { path: 'products',       element: <ProductsPage /> },
+      { path: 'products/:id',   element: <ProductEditPage /> },
+      { path: 'variations',     element: <VariationsPage /> },
+      { path: 'hero-slides',    element: <HeroSlidesPage /> },
+      { path: 'home-sections',  element: <HomepageContentPage /> },
+      { path: 'media',          element: <MediaPage /> },
+      { path: 'settings',       element: <SettingsPage /> },
+      // Legacy path — redirect to the new Homepage Content page.
+      { path: 'content',        element: <Navigate to="/admin/home-sections" replace /> },
     ],
   },
   { path: '*', element: <NotFoundPage /> },
