@@ -19,6 +19,7 @@ import { CategoriesPage }        from '@/pages/admin/CategoriesPage';
 import { CategoryEditPage }      from '@/pages/admin/CategoryEditPage';
 import { ProductsPage }          from '@/pages/admin/ProductsPage';
 import { ProductEditPage }       from '@/pages/admin/ProductEditPage';
+import { ProductVariationsPage } from '@/pages/admin/ProductVariationsPage';
 import { VariationsPage }        from '@/pages/admin/VariationsPage';
 import { HeroSlidesPage }        from '@/pages/admin/HeroSlidesPage';
 import { HomepageContentPage }   from '@/pages/admin/HomepageContentPage';
@@ -53,9 +54,11 @@ export const router = createBrowserRouter([
       { path: 'categories',       element: <CategoriesPage /> },
       { path: 'categories/new',   element: <CategoryEditPage /> },
       { path: 'categories/:id',   element: <CategoryEditPage /> },
-      { path: 'products',         element: <ProductsPage /> },
-      { path: 'products/:id',   element: <ProductEditPage /> },
-      { path: 'variations',     element: <VariationsPage /> },
+      { path: 'products',                 element: <ProductsPage /> },
+      { path: 'products/new',             element: <ProductEditPage /> },
+      { path: 'products/:id',             element: <ProductEditPage /> },
+      { path: 'products/:id/variations',  element: <ProductVariationsPage /> },
+      { path: 'variations',               element: <VariationsPage /> },
       { path: 'hero-slides',    element: <HeroSlidesPage /> },
       { path: 'home-sections',  element: <HomepageContentPage /> },
       { path: 'media',          element: <MediaPage /> },

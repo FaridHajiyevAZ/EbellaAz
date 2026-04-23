@@ -210,3 +210,104 @@ export interface UpdateCategoryRequest extends Partial<CreateCategoryRequest> {}
 export interface ReorderRequest {
   items: { id: UUID; sortOrder: number }[];
 }
+
+// ---- Admin: Products ---------------------------------------------------
+
+export type ProductStatus = 'DRAFT' | 'PUBLISHED' | 'OUT_OF_STOCK' | 'ARCHIVED';
+export type VariationStatus = 'ACTIVE' | 'INACTIVE';
+
+export interface ImageAdminDto {
+  id: UUID;
+  variationId: UUID;
+  storageKey: string;
+  url: string;
+  renditions: Record<string, string>;
+  altText?: string | null;
+  contentType?: string | null;
+  sizeBytes?: number | null;
+  width?: number | null;
+  height?: number | null;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface VariationAdminDto {
+  id: UUID;
+  productId: UUID;
+  colorName: string;
+  colorHex: string;
+  variationSku?: string | null;
+  stockStatusText: string;
+  isDefault: boolean;
+  sortOrder: number;
+  status: VariationStatus;
+  primaryImageId?: UUID | null;
+  images: ImageAdminDto[];
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+}
+
+export interface ProductAdminListItemDto {
+  id: UUID;
+  sku: string;
+  slug: string;
+  name: string;
+  brand?: string | null;
+  categoryId: UUID;
+  categoryName: string;
+  status: ProductStatus;
+  featured: boolean;
+  sortOrder: number;
+  variationsCount: number;
+  coverImageUrl?: string | null;
+  updatedAt: string;
+}
+
+export interface ProductAdminDetailDto {
+  id: UUID;
+  categoryId: UUID;
+  categoryName: string;
+  sku: string;
+  slug: string;
+  name: string;
+  brand?: string | null;
+  shortDescription?: string | null;
+  longDescription?: string | null;
+  dimensions?: Record<string, unknown> | null;
+  materials: string[];
+  specs: Record<string, unknown>;
+  status: ProductStatus;
+  featured: boolean;
+  sortOrder: number;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  variations: VariationAdminDto[];
+  publishedAt?: string | null;
+  createdAt: string;
+  createdBy?: UUID | null;
+  updatedAt: string;
+  updatedBy?: UUID | null;
+  deletedAt?: string | null;
+}
+
+export interface CreateProductRequest {
+  categoryId: UUID;
+  sku: string;
+  slug: string;
+  name: string;
+  brand?: string | null;
+  shortDescription?: string | null;
+  longDescription?: string | null;
+  dimensions?: Record<string, unknown> | null;
+  materials?: string[] | null;
+  specs?: Record<string, unknown> | null;
+  status?: ProductStatus | null;
+  featured?: boolean | null;
+  sortOrder?: number | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+}
+
+export interface UpdateProductRequest extends Partial<CreateProductRequest> {}
