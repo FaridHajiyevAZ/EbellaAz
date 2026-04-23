@@ -1,17 +1,18 @@
 import { Card, CardBody, CardHeader, CardSubtitle, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { useAuth } from '@/hooks/useAuth';
 
 export function DashboardPage() {
   const { admin } = useAuth();
+
   return (
-    <div className="space-y-6">
-      <header>
-        <h1 className="font-display text-display text-fg">
-          {admin ? `Welcome back, ${admin.fullName.split(' ')[0]}.` : 'Welcome.'}
-        </h1>
-        <p className="mt-2 text-muted">Here's what's happening in your catalog today.</p>
-      </header>
+    <div>
+      <PageHeader
+        eyebrow="Overview"
+        title={admin ? `Welcome back, ${admin.fullName.split(' ')[0]}.` : 'Welcome.'}
+        description="Here's what's happening in your catalog today."
+      />
 
       <div className="grid gap-4 md:grid-cols-3">
         {[
@@ -28,7 +29,7 @@ export function DashboardPage() {
         ))}
       </div>
 
-      <Card>
+      <Card className="mt-6">
         <CardHeader>
           <CardTitle>Getting started</CardTitle>
           <CardSubtitle>Tasks to complete after a fresh install.</CardSubtitle>
