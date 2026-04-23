@@ -45,6 +45,20 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, "BadRequest", ex.getMessage(), req, null);
     }
 
+    @ExceptionHandler(FileValidationException.class)
+    public ResponseEntity<ApiError> handleFileValidation(FileValidationException ex, HttpServletRequest req) {
+        return build(HttpStatus.BAD_REQUEST, "InvalidUpload", ex.getMessage(), req, null);
+    }
+
+    @ExceptionHandler(com.company.furniturecatalog.storage.LocalStorageService.StorageIOException.class)
+    public ResponseEntity<ApiError> handleStorageIo(
+            com.company.furniturecatalog.storage.LocalStorageService.StorageIOException ex,
+            HttpServletRequest req) {
+        log.error("Storage failure on {} {}: {}", req.getMethod(), req.getRequestURI(), ex.getMessage(), ex);
+        return build(HttpStatus.INTERNAL_SERVER_ERROR, "StorageFailure",
+                "File storage operation failed", req, null);
+    }
+
     // --- Validation -----------------------------------------------------
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

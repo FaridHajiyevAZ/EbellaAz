@@ -71,6 +71,20 @@ app:
       public-base-url: ${APP_STORAGE_PUBLIC_BASE_URL:http://localhost:8080/media}
       # URL path where Spring serves the files from root-path
       url-path: /media
+    images:
+      # Per-file maximum; separate from Spring's multipart limit so we can
+      # reject oversized images with a clean business error before the
+      # Tomcat-level abort kicks in.
+      max-size: 8MB
+      allowed-content-types:
+        - image/jpeg
+        - image/png
+        - image/webp
+      allowed-extensions:
+        - jpg
+        - jpeg
+        - png
+        - webp
 
   security:
     jwt:
