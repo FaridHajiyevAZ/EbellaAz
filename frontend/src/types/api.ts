@@ -327,3 +327,123 @@ export interface CreateVariationRequest {
 export interface UpdateVariationRequest extends Partial<CreateVariationRequest> {
   primaryImageId?: UUID | null;
 }
+
+// ---- Admin: CMS — Hero Slides -----------------------------------------
+
+export interface HeroSlideAdminDto {
+  id: UUID;
+  title: string;
+  subtitle?: string | null;
+  ctaText?: string | null;
+  ctaUrl?: string | null;
+  imageKey?: string | null;
+  imageUrl?: string | null;
+  sortOrder: number;
+  status: ContentStatus;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+}
+
+export interface CreateHeroSlideRequest {
+  title: string;
+  subtitle?: string | null;
+  ctaText?: string | null;
+  ctaUrl?: string | null;
+  imageKey?: string | null;
+  sortOrder?: number | null;
+  status?: ContentStatus | null;
+  startsAt?: string | null;
+  endsAt?: string | null;
+}
+
+export interface UpdateHeroSlideRequest extends Partial<CreateHeroSlideRequest> {}
+
+// ---- Admin: CMS — Homepage Sections -----------------------------------
+
+export interface HomeSectionAdminDto {
+  id: UUID;
+  sectionType: HomeSectionType;
+  title?: string | null;
+  subtitle?: string | null;
+  body?: string | null;
+  imageKey?: string | null;
+  imageUrl?: string | null;
+  config?: Record<string, unknown> | null;
+  sortOrder: number;
+  status: ContentStatus;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+}
+
+export interface CreateHomeSectionRequest {
+  sectionType: HomeSectionType;
+  title?: string | null;
+  subtitle?: string | null;
+  body?: string | null;
+  imageKey?: string | null;
+  config?: Record<string, unknown> | null;
+  sortOrder?: number | null;
+  status?: ContentStatus | null;
+}
+
+export interface UpdateHomeSectionRequest extends Partial<CreateHomeSectionRequest> {}
+
+// ---- Admin: CMS — Contact Info ---------------------------------------
+
+export interface ContactInfoAdminDto {
+  id: UUID;
+  label: string;
+  locale?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  whatsappNumber?: string | null;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  city?: string | null;
+  country?: string | null;
+  postalCode?: string | null;
+  mapUrl?: string | null;
+  workingHours?: Record<string, string> | null;
+  primary: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateContactInfoRequest {
+  label: string;
+  locale?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  whatsappNumber?: string | null;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  city?: string | null;
+  country?: string | null;
+  postalCode?: string | null;
+  mapUrl?: string | null;
+  workingHours?: Record<string, string> | null;
+  primary?: boolean | null;
+}
+
+export interface UpdateContactInfoRequest extends Partial<CreateContactInfoRequest> {}
+
+// ---- Admin: CMS — Site Settings --------------------------------------
+
+export interface SiteSettingAdminDto {
+  key: string;
+  value: unknown;
+  description?: string | null;
+  publicSetting: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpsertSiteSettingRequest {
+  value: unknown;
+  description?: string | null;
+  publicSetting?: boolean | null;
+}
