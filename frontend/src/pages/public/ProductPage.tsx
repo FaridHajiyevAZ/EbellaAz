@@ -1,40 +1,26 @@
-import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronRight, MessageCircle } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
+import { EmptyState } from '@/components/ui/EmptyState';
+import { ProductGallery } from '@/features/catalog/ProductGallery';
+import { ColorVariationSelector } from '@/features/catalog/ColorVariationSelector';
 import { useProductDetail } from '@/hooks/useCatalog';
-import { cn } from '@/utils/cn';
+import { useSelectedVariation } from '@/hooks/useSelectedVariation';
+import type { ProductDetail } from '@/types/api';
 
 export function ProductPage() {
   const { slug } = useParams();
   const { data: product, isLoading, isError, refetch } = useProductDetail(slug);
 
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const { selected, selectById, images } = useSelectedVariation(product);
 
-  const selectedVariation = useMemo(() => {
-    if (!product) return null;
-    const id = selectedId ?? product.defaultVariationId;
-    return product.variations.find((v) => v.id === id) ?? product.variations[0] ?? null;
-  }, [product, selectedId]);
+  if (isLoading) return <ProductPageSkeleton />;
 
-  if (isLoading) {
-    return (
-      <Container className="grid gap-10 py-12 md:grid-cols-2 md:py-16">
-        <Skeleton className="aspect-square" />
-        <div className="space-y-4">
-          <Skeleton className="h-6 w-1/3" />
-          <Skeleton className="h-10 w-2/3" />
-          <Skeleton className="h-24 w-full" />
-        </div>
-      </Container>
-    );
-  }
-
-  if (isError || !product) {
+  if (isError) {
     return (
       <Container className="py-16">
         <ErrorState onRetry={() => refetch()} />
@@ -42,131 +28,268 @@ export function ProductPage() {
     );
   }
 
-  const images = selectedVariation?.images ?? [];
-  const [hero, ...thumbs] = images;
+  if (!product) {
+    return (
+      <Container className="py-20">
+        <EmptyState
+          title="Product not found"
+          description="The product you were looking for may have moved or been removed."
+          action={<Link to="/" className="text-accent underline underline-offset-4">Back to home</Link>}
+        />
+      </Container>
+    );
+  }
 
   return (
-    <Container className="py-10 md:py-14">
-      {/* Breadcrumbs */}
-      <nav aria-label="Breadcrumb" className="mb-6 text-sm text-muted">
-        <ol className="flex flex-wrap items-center gap-2">
-          <li><Link to="/" className="hover:text-fg">Home</Link></li>
-          {product.breadcrumbs.map((b) => (
-            <li key={b.id} className="flex items-center gap-2">
-              <span className="text-subtle">/</span>
-              <Link to={`/category${b.fullPath}`} className="hover:text-fg">{b.name}</Link>
-            </li>
-          ))}
-        </ol>
-      </nav>
+    <>
+      <Container className="py-8 pb-24 md:py-12 md:pb-16">
+        <Breadcrumbs product={product} />
 
-      <div className="grid gap-10 md:grid-cols-2">
-        {/* Gallery */}
-        <div>
-          <div className="aspect-square overflow-hidden rounded-lg bg-bg-alt">
-            {hero ? (
-              <img
-                src={hero.url}
-                srcSet={Object.values(hero.renditions ?? {}).join(', ')}
-                alt={hero.altText ?? product.name}
-                className="h-full w-full object-cover"
-              />
-            ) : null}
-          </div>
-          {thumbs.length > 0 && (
-            <div className="mt-3 grid grid-cols-5 gap-2">
-              {[hero, ...thumbs].filter(Boolean).map((img) => (
-                <div key={img.id} className="aspect-square overflow-hidden rounded bg-bg-alt">
-                  <img src={img.url} alt="" className="h-full w-full object-cover" />
-                </div>
-              ))}
-            </div>
-          )}
+        <div className="mt-6 grid gap-10 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
+          <ProductGallery
+            images={images}
+            productName={product.name}
+            resetKey={selected?.id}
+          />
+
+          <InfoPanel product={product} selected={selected} selectById={selectById} />
         </div>
 
-        {/* Details */}
-        <div>
-          {product.brand && <span className="text-eyebrow uppercase text-subtle">{product.brand}</span>}
-          <h1 className="mt-2 font-display text-display text-fg">{product.name}</h1>
+        <DetailsSection product={product} />
+      </Container>
 
-          {product.shortDescription && (
-            <p className="mt-4 max-w-prose text-muted">{product.shortDescription}</p>
-          )}
+      <StickyMobileCta product={product} colorName={selected?.colorName} />
+    </>
+  );
+}
 
-          {/* Color swatches */}
-          {product.variations.length > 0 && (
-            <div className="mt-8">
-              <div className="mb-2 flex items-baseline justify-between">
-                <span className="text-xs font-medium uppercase tracking-wide text-muted">Color</span>
-                <span className="text-sm text-fg">{selectedVariation?.colorName}</span>
+/* ----------------------------- panels ----------------------------- */
+
+function InfoPanel({
+  product,
+  selected,
+  selectById,
+}: {
+  product: ProductDetail;
+  selected: ReturnType<typeof useSelectedVariation>['selected'];
+  selectById: (id: string) => void;
+}) {
+  return (
+    <section className="flex flex-col">
+      {product.brand && (
+        <span className="text-[11px] uppercase tracking-[0.18em] text-subtle">
+          {product.brand}
+        </span>
+      )}
+      <h1 className="mt-2 font-display text-display text-balance text-fg">
+        {product.name}
+      </h1>
+
+      {product.shortDescription && (
+        <p className="mt-4 max-w-prose text-muted">{product.shortDescription}</p>
+      )}
+
+      {/* Meta line: SKU + stock label */}
+      <div className="mt-5 flex flex-wrap items-center gap-3 text-xs text-muted">
+        <span>
+          <span className="uppercase tracking-wider text-subtle">SKU</span>{' '}
+          <span className="text-fg">{product.sku}</span>
+        </span>
+        {selected?.stockStatusText && (
+          <Badge tone="success">{selected.stockStatusText}</Badge>
+        )}
+      </div>
+
+      {product.variations.length > 0 && (
+        <ColorVariationSelector
+          className="mt-8"
+          variations={product.variations}
+          selectedId={selected?.id ?? null}
+          onChange={selectById}
+        />
+      )}
+
+      {/* Actions */}
+      <div className="mt-8 space-y-3">
+        {product.whatsappInquiry?.url ? (
+          <Button variant="accent" size="lg" asChild={false} className="w-full sm:w-auto">
+            <a href={product.whatsappInquiry.url} target="_blank" rel="noreferrer">
+              <MessageCircle className="h-4 w-4" />
+              Inquire on WhatsApp
+              <ArrowRight className="h-4 w-4" />
+            </a>
+          </Button>
+        ) : null}
+
+        <p className="text-xs text-subtle">
+          Availability, delivery, and customisation questions answered same day by our team.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function DetailsSection({ product }: { product: ProductDetail }) {
+  const hasDimensions = product.dimensions && Object.keys(product.dimensions).length > 0;
+  const hasMaterials  = product.materials.length > 0;
+  const hasSpecs      = Object.keys(product.specs ?? {}).length > 0;
+
+  if (!product.longDescription && !hasDimensions && !hasMaterials && !hasSpecs) return null;
+
+  return (
+    <section className="mt-16 grid gap-10 border-t border-border pt-10 md:grid-cols-[1fr_1.4fr]">
+      <header>
+        <span className="text-eyebrow uppercase text-subtle">Details</span>
+        <h2 className="mt-2 font-display text-heading text-fg">Know this piece</h2>
+      </header>
+
+      <div className="space-y-10 text-sm">
+        {product.longDescription && (
+          <p className="whitespace-pre-line text-pretty text-muted">
+            {product.longDescription}
+          </p>
+        )}
+
+        {(hasDimensions || hasMaterials) && (
+          <dl className="grid gap-6 sm:grid-cols-2">
+            {hasDimensions && (
+              <div>
+                <dt className="text-[11px] uppercase tracking-[0.14em] text-subtle">Dimensions</dt>
+                <dd className="mt-2 text-fg">
+                  {Object.entries(product.dimensions ?? {}).map(([k, v]) => (
+                    <div key={k} className="flex justify-between gap-4 border-b border-border py-1.5 last:border-0">
+                      <span className="text-muted">{formatKey(k)}</span>
+                      <span className="text-fg">{String(v)}</span>
+                    </div>
+                  ))}
+                </dd>
               </div>
-              <div className="flex flex-wrap gap-2">
-                {product.variations.map((v) => {
-                  const active = v.id === selectedVariation?.id;
-                  return (
-                    <button
-                      key={v.id}
-                      onClick={() => setSelectedId(v.id)}
-                      aria-pressed={active}
-                      aria-label={v.colorName}
-                      className={cn(
-                        'focus-ring relative h-9 w-9 rounded-full border transition-transform',
-                        active ? 'border-fg ring-2 ring-fg ring-offset-2 ring-offset-bg' : 'border-border hover:scale-105',
-                      )}
-                      style={{ backgroundColor: v.colorHex }}
-                    />
-                  );
-                })}
+            )}
+            {hasMaterials && (
+              <div>
+                <dt className="text-[11px] uppercase tracking-[0.14em] text-subtle">Materials</dt>
+                <dd className="mt-2 text-fg">{product.materials.join(', ')}</dd>
               </div>
-              {selectedVariation?.stockStatusText && (
-                <Badge tone="success" className="mt-3">{selectedVariation.stockStatusText}</Badge>
-              )}
-            </div>
-          )}
+            )}
+          </dl>
+        )}
 
-          {/* WhatsApp CTA */}
-          {product.whatsappInquiry?.url && (
-            <div className="mt-8">
-              <Button variant="accent" size="lg" asChild={false}>
-                <a href={product.whatsappInquiry.url} target="_blank" rel="noreferrer">
-                  Inquire on WhatsApp <ArrowRight className="h-4 w-4" />
-                </a>
-              </Button>
-              <p className="mt-2 text-xs text-muted">
-                Opens WhatsApp with a pre-filled message about this product.
-              </p>
-            </div>
-          )}
-
-          {/* Long description */}
-          {product.longDescription && (
-            <div className="mt-10 border-t border-border pt-8">
-              <h2 className="font-display text-heading text-fg">Details</h2>
-              <p className="mt-3 whitespace-pre-line text-muted">{product.longDescription}</p>
-            </div>
-          )}
-
-          {/* Dimensions / materials */}
-          {(product.materials?.length || product.dimensions) && (
-            <dl className="mt-8 grid grid-cols-2 gap-4 text-sm">
-              {product.dimensions && (
-                <div>
-                  <dt className="text-xs uppercase tracking-wide text-muted">Dimensions</dt>
-                  <dd className="mt-1 text-fg">
-                    {Object.entries(product.dimensions).map(([k, v]) => `${k}: ${v}`).join(' · ')}
-                  </dd>
+        {hasSpecs && (
+          <div>
+            <div className="text-[11px] uppercase tracking-[0.14em] text-subtle">Specifications</div>
+            <dl className="mt-2">
+              {Object.entries(product.specs).map(([k, v]) => (
+                <div key={k} className="flex justify-between gap-4 border-b border-border py-2 last:border-0">
+                  <dt className="text-muted">{formatKey(k)}</dt>
+                  <dd className="text-fg">{String(v)}</dd>
                 </div>
-              )}
-              {product.materials?.length ? (
-                <div>
-                  <dt className="text-xs uppercase tracking-wide text-muted">Materials</dt>
-                  <dd className="mt-1 text-fg">{product.materials.join(', ')}</dd>
-                </div>
-              ) : null}
+              ))}
             </dl>
-          )}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+/* ------------------------ sticky mobile bar ----------------------- */
+
+function StickyMobileCta({
+  product,
+  colorName,
+}: {
+  product: ProductDetail;
+  colorName?: string | null;
+}) {
+  if (!product.whatsappInquiry?.url) return null;
+  return (
+    <div
+      className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-bg/95 backdrop-blur md:hidden"
+      style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.75rem)' }}
+      role="region"
+      aria-label="Product inquiry"
+    >
+      <div className="mx-auto flex max-w-screen-md items-center gap-3 px-4 pt-3">
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] uppercase tracking-[0.14em] text-subtle">
+            {colorName ? 'Color' : 'Product'}
+          </div>
+          <div className="truncate text-sm text-fg">{colorName ?? product.name}</div>
+        </div>
+        <Button variant="accent" asChild={false} className="shrink-0">
+          <a href={product.whatsappInquiry.url} target="_blank" rel="noreferrer">
+            <MessageCircle className="h-4 w-4" />
+            Inquire
+          </a>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ misc ----------------------------- */
+
+function Breadcrumbs({ product }: { product: ProductDetail }) {
+  const parentPath: string[] = [];
+  return (
+    <nav aria-label="Breadcrumb" className="text-xs text-muted">
+      <ol className="flex flex-wrap items-center gap-1.5">
+        <li>
+          <Link to="/" className="hover:text-fg">Home</Link>
+        </li>
+        {product.breadcrumbs.map((b) => {
+          parentPath.push(b.slug);
+          return (
+            <li key={b.id} className="flex items-center gap-1.5">
+              <ChevronRight className="h-3 w-3 text-subtle" />
+              <Link to={`/category/${parentPath.join('/')}`} className="hover:text-fg">
+                {b.name}
+              </Link>
+            </li>
+          );
+        })}
+        <li className="flex items-center gap-1.5">
+          <ChevronRight className="h-3 w-3 text-subtle" />
+          <span className="text-fg">{product.name}</span>
+        </li>
+      </ol>
+    </nav>
+  );
+}
+
+function ProductPageSkeleton() {
+  return (
+    <Container className="py-12">
+      <Skeleton className="h-3 w-64" />
+      <div className="mt-6 grid gap-10 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr]">
+        <div className="space-y-3">
+          <Skeleton className="aspect-square" />
+          <div className="grid grid-cols-5 gap-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-square" />
+            ))}
+          </div>
+        </div>
+        <div className="space-y-4">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-10 w-3/4" />
+          <Skeleton className="h-4 w-2/3" />
+          <Skeleton className="h-4 w-1/2" />
+          <div className="flex gap-3 pt-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Skeleton key={i} className="h-10 w-10 rounded-full" />
+            ))}
+          </div>
+          <Skeleton className="h-12 w-full sm:w-48" />
         </div>
       </div>
     </Container>
   );
+}
+
+function formatKey(k: string) {
+  return k
+    .replace(/_/g, ' ')
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, (m) => m.toUpperCase());
 }
