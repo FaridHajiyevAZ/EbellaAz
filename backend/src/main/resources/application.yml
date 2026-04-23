@@ -92,6 +92,13 @@ app:
       access-token-ttl: PT1H
       refresh-token-ttl: P7D
       issuer: furniture-catalog
+    bootstrap-admin:
+      # When true AND no active admin exists, seed a SUPER_ADMIN on startup.
+      # Keep false in production unless you explicitly need to provision one.
+      enabled: ${APP_BOOTSTRAP_ADMIN_ENABLED:false}
+      email: ${APP_BOOTSTRAP_ADMIN_EMAIL:admin@ebellaaz.local}
+      password: ${APP_BOOTSTRAP_ADMIN_PASSWORD:}
+      full-name: ${APP_BOOTSTRAP_ADMIN_NAME:Site Administrator}
 
 springdoc:
   api-docs:

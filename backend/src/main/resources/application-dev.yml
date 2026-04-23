@@ -28,6 +28,12 @@ app:
     local:
       root-path: ./var/uploads
       public-base-url: http://localhost:8080/media
+  security:
+    bootstrap-admin:
+      enabled: true
+      email: admin@ebellaaz.local
+      password: ChangeMe123!
+      full-name: Dev Administrator
 
 logging:
   level:
