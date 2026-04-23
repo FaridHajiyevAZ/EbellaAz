@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { Pagination } from '@/components/ui/Pagination';
+import { Breadcrumbs, BreadcrumbItem } from '@/components/ui/Breadcrumbs';
 import { ProductCard } from '@/features/catalog/ProductCard';
 import {
   CategoryFilters,
@@ -14,6 +14,7 @@ import {
   type SortKey,
 } from '@/features/catalog/CategoryFilters';
 import { useCategoryTree, useProductList } from '@/hooks/useCatalog';
+import { useSeo } from '@/hooks/useSeo';
 import type { CategoryTreeNode } from '@/types/api';
 
 const PAGE_SIZE = 24;
@@ -21,10 +22,7 @@ const DEFAULT_SORT: SortKey = 'newest';
 
 /**
  * Category listing at /category/:slug (and nested /category/:parent/:child/...).
- *
- * The slug path is walked against the live category tree to resolve the
- * current node. All filter state is URL-backed so results are shareable
- * and back-button-safe.
+ * Filter state lives entirely in the URL so results are shareable + back-safe.
  *
  *   /category/home-furniture/sofas?q=oak&sub=corner-sofas&featured=1&sort=name_asc&page=2
  */
@@ -34,11 +32,10 @@ export function CategoryPage() {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const { data: tree, isLoading: treeLoading, isError: treeError, refetch: refetchTree } = useCategoryTree();
-
+  const tree = useCategoryTree();
   const { node, trail } = useMemo(
-    () => resolvePath(tree ?? [], slugPath),
-    [tree, slugPath],
+    () => resolvePath(tree.data ?? [], slugPath),
+    [tree.data, slugPath],
   );
 
   // --- URL-driven filter state ---
@@ -56,47 +53,49 @@ export function CategoryPage() {
     setParam(params, 'sub',      next.subSlug);
     setParam(params, 'featured', next.featured ? '1' : '');
     setParam(params, 'sort',     next.sort === DEFAULT_SORT ? '' : next.sort);
-    params.delete('page'); // any filter change resets paging
+    params.delete('page');
     setSearchParams(params, { replace: true });
   };
   const goToPage = (p: number) => {
     const params = new URLSearchParams(searchParams);
     if (p <= 1) params.delete('page'); else params.set('page', String(p));
     setSearchParams(params, { replace: false });
-    // Let ScrollRestoration (in PublicLayout) handle scroll on history change.
   };
 
-  // Resolve which category id to query: selected subcategory if any, else current node.
   const selectedSub = filters.subSlug
     ? node?.children.find((c) => c.slug === filters.subSlug) ?? null
     : null;
   const queryCategoryId = selectedSub?.id ?? node?.id;
-  const subtree = !selectedSub; // when a direct sub is selected we don't descend further
 
   const products = useProductList({
     categoryId: queryCategoryId,
-    subtree,
-    q:        filters.q.trim() || undefined,
-    featured: filters.featured || undefined,
-    sort:     SORT_PARAM[filters.sort],
+    subtree:    !selectedSub,
+    q:          filters.q.trim() || undefined,
+    featured:   filters.featured || undefined,
+    sort:       SORT_PARAM[filters.sort],
     page: page - 1,
     size: PAGE_SIZE,
   });
 
+  // SEO
+  const seoTitle = node ? (selectedSub?.name ?? node.name) : 'Category';
+  useSeo({
+    title: seoTitle,
+    description: node
+      ? `Shop ${selectedSub?.name ?? node.name} at Ebella.`
+      : undefined,
+  });
+
   // ---------------- Render paths ----------------
 
-  if (treeLoading) {
-    return <CategoryPageSkeleton />;
-  }
-
-  if (treeError) {
+  if (tree.isLoading) return <CategoryPageSkeleton />;
+  if (tree.isError) {
     return (
       <Container className="py-16">
-        <ErrorState onRetry={() => refetchTree()} />
+        <ErrorState onRetry={() => tree.refetch()} />
       </Container>
     );
   }
-
   if (!node) {
     return (
       <Container className="py-20">
@@ -110,10 +109,11 @@ export function CategoryPage() {
   }
 
   const title = selectedSub?.name ?? node.name;
+  const breadcrumbs = buildBreadcrumbs(trail, node, selectedSub);
 
   return (
     <Container className="py-10 md:py-14">
-      <Breadcrumbs trail={trail} current={selectedSub?.name} />
+      <Breadcrumbs items={breadcrumbs} />
 
       <header className="mt-4 max-w-2xl">
         <span className="text-eyebrow uppercase text-subtle">Collection</span>
@@ -165,34 +165,28 @@ export function CategoryPage() {
 
 /* ------------------------------- helpers ------------------------------- */
 
-function Breadcrumbs({ trail, current }: { trail: CategoryTreeNode[]; current?: string }) {
-  if (trail.length === 0 && !current) return null;
-  const parentPath: string[] = [];
-  return (
-    <nav aria-label="Breadcrumb" className="text-xs text-muted">
-      <ol className="flex flex-wrap items-center gap-1.5">
-        <li>
-          <Link to="/" className="hover:text-fg">Home</Link>
-        </li>
-        {trail.map((n) => {
-          parentPath.push(n.slug);
-          const href = `/category/${parentPath.join('/')}`;
-          return (
-            <li key={n.id} className="flex items-center gap-1.5">
-              <ChevronRight className="h-3 w-3 text-subtle" />
-              <Link to={href} className="hover:text-fg">{n.name}</Link>
-            </li>
-          );
-        })}
-        {current && (
-          <li className="flex items-center gap-1.5">
-            <ChevronRight className="h-3 w-3 text-subtle" />
-            <span className="text-fg">{current}</span>
-          </li>
-        )}
-      </ol>
-    </nav>
-  );
+function buildBreadcrumbs(
+  trail: CategoryTreeNode[],
+  node: CategoryTreeNode,
+  selectedSub: CategoryTreeNode | null,
+): BreadcrumbItem[] {
+  const items: BreadcrumbItem[] = [{ label: 'Home', to: '/' }];
+  const parents: string[] = [];
+  for (const t of trail) {
+    parents.push(t.slug);
+    items.push({ label: t.name, to: `/category/${parents.join('/')}` });
+  }
+  // The deepest matched node is always there; if a subcategory is selected
+  // we make the deepest matched a link and the sub the current page.
+  parents.push(node.slug);
+  const nodeHref = `/category/${parents.join('/')}`;
+  if (selectedSub) {
+    items.push({ label: node.name, to: nodeHref });
+    items.push({ label: selectedSub.name }); // current
+  } else {
+    items.push({ label: node.name }); // current
+  }
+  return items;
 }
 
 function ProductGridSkeleton() {
@@ -222,10 +216,6 @@ function CategoryPageSkeleton() {
   );
 }
 
-/**
- * Walks the slug path against the tree and returns the deepest matched node
- * plus the breadcrumb trail. Unmatched suffix stops the traversal.
- */
 function resolvePath(
   tree: CategoryTreeNode[],
   slugPath: string[],

@@ -169,3 +169,281 @@ export interface TokenResponse {
   expiresIn: number;
   admin: AdminProfile;
 }
+
+// ---- Admin: Catalog ----------------------------------------------------
+
+export type ContentStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+
+export interface CategoryAdminDto {
+  id: UUID;
+  parentId?: UUID | null;
+  name: string;
+  slug: string;
+  description?: string | null;
+  coverImageKey?: string | null;
+  coverImageUrl?: string | null;
+  path?: string | null;
+  depth: number;
+  sortOrder: number;
+  status: ContentStatus;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+}
+
+export interface CreateCategoryRequest {
+  parentId?: UUID | null;
+  name: string;
+  slug: string;
+  description?: string | null;
+  coverImageKey?: string | null;
+  sortOrder?: number | null;
+  status?: ContentStatus | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+}
+
+export interface UpdateCategoryRequest extends Partial<CreateCategoryRequest> {}
+
+export interface ReorderRequest {
+  items: { id: UUID; sortOrder: number }[];
+}
+
+// ---- Admin: Products ---------------------------------------------------
+
+export type ProductStatus = 'DRAFT' | 'PUBLISHED' | 'OUT_OF_STOCK' | 'ARCHIVED';
+export type VariationStatus = 'ACTIVE' | 'INACTIVE';
+
+export interface ImageAdminDto {
+  id: UUID;
+  variationId: UUID;
+  storageKey: string;
+  url: string;
+  renditions: Record<string, string>;
+  altText?: string | null;
+  contentType?: string | null;
+  sizeBytes?: number | null;
+  width?: number | null;
+  height?: number | null;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface VariationAdminDto {
+  id: UUID;
+  productId: UUID;
+  colorName: string;
+  colorHex: string;
+  variationSku?: string | null;
+  stockStatusText: string;
+  isDefault: boolean;
+  sortOrder: number;
+  status: VariationStatus;
+  primaryImageId?: UUID | null;
+  images: ImageAdminDto[];
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+}
+
+export interface ProductAdminListItemDto {
+  id: UUID;
+  sku: string;
+  slug: string;
+  name: string;
+  brand?: string | null;
+  categoryId: UUID;
+  categoryName: string;
+  status: ProductStatus;
+  featured: boolean;
+  sortOrder: number;
+  variationsCount: number;
+  coverImageUrl?: string | null;
+  updatedAt: string;
+}
+
+export interface ProductAdminDetailDto {
+  id: UUID;
+  categoryId: UUID;
+  categoryName: string;
+  sku: string;
+  slug: string;
+  name: string;
+  brand?: string | null;
+  shortDescription?: string | null;
+  longDescription?: string | null;
+  dimensions?: Record<string, unknown> | null;
+  materials: string[];
+  specs: Record<string, unknown>;
+  status: ProductStatus;
+  featured: boolean;
+  sortOrder: number;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  variations: VariationAdminDto[];
+  publishedAt?: string | null;
+  createdAt: string;
+  createdBy?: UUID | null;
+  updatedAt: string;
+  updatedBy?: UUID | null;
+  deletedAt?: string | null;
+}
+
+export interface CreateProductRequest {
+  categoryId: UUID;
+  sku: string;
+  slug: string;
+  name: string;
+  brand?: string | null;
+  shortDescription?: string | null;
+  longDescription?: string | null;
+  dimensions?: Record<string, unknown> | null;
+  materials?: string[] | null;
+  specs?: Record<string, unknown> | null;
+  status?: ProductStatus | null;
+  featured?: boolean | null;
+  sortOrder?: number | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+}
+
+export interface UpdateProductRequest extends Partial<CreateProductRequest> {}
+
+// ---- Admin: Variations -------------------------------------------------
+
+export interface CreateVariationRequest {
+  colorName: string;
+  colorHex: string;
+  variationSku?: string | null;
+  stockStatusText?: string | null;
+  isDefault?: boolean | null;
+  sortOrder?: number | null;
+  status?: VariationStatus | null;
+}
+
+export interface UpdateVariationRequest extends Partial<CreateVariationRequest> {
+  primaryImageId?: UUID | null;
+}
+
+// ---- Admin: CMS — Hero Slides -----------------------------------------
+
+export interface HeroSlideAdminDto {
+  id: UUID;
+  title: string;
+  subtitle?: string | null;
+  ctaText?: string | null;
+  ctaUrl?: string | null;
+  imageKey?: string | null;
+  imageUrl?: string | null;
+  sortOrder: number;
+  status: ContentStatus;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+}
+
+export interface CreateHeroSlideRequest {
+  title: string;
+  subtitle?: string | null;
+  ctaText?: string | null;
+  ctaUrl?: string | null;
+  imageKey?: string | null;
+  sortOrder?: number | null;
+  status?: ContentStatus | null;
+  startsAt?: string | null;
+  endsAt?: string | null;
+}
+
+export interface UpdateHeroSlideRequest extends Partial<CreateHeroSlideRequest> {}
+
+// ---- Admin: CMS — Homepage Sections -----------------------------------
+
+export interface HomeSectionAdminDto {
+  id: UUID;
+  sectionType: HomeSectionType;
+  title?: string | null;
+  subtitle?: string | null;
+  body?: string | null;
+  imageKey?: string | null;
+  imageUrl?: string | null;
+  config?: Record<string, unknown> | null;
+  sortOrder: number;
+  status: ContentStatus;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+}
+
+export interface CreateHomeSectionRequest {
+  sectionType: HomeSectionType;
+  title?: string | null;
+  subtitle?: string | null;
+  body?: string | null;
+  imageKey?: string | null;
+  config?: Record<string, unknown> | null;
+  sortOrder?: number | null;
+  status?: ContentStatus | null;
+}
+
+export interface UpdateHomeSectionRequest extends Partial<CreateHomeSectionRequest> {}
+
+// ---- Admin: CMS — Contact Info ---------------------------------------
+
+export interface ContactInfoAdminDto {
+  id: UUID;
+  label: string;
+  locale?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  whatsappNumber?: string | null;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  city?: string | null;
+  country?: string | null;
+  postalCode?: string | null;
+  mapUrl?: string | null;
+  workingHours?: Record<string, string> | null;
+  primary: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateContactInfoRequest {
+  label: string;
+  locale?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  whatsappNumber?: string | null;
+  addressLine1?: string | null;
+  addressLine2?: string | null;
+  city?: string | null;
+  country?: string | null;
+  postalCode?: string | null;
+  mapUrl?: string | null;
+  workingHours?: Record<string, string> | null;
+  primary?: boolean | null;
+}
+
+export interface UpdateContactInfoRequest extends Partial<CreateContactInfoRequest> {}
+
+// ---- Admin: CMS — Site Settings --------------------------------------
+
+export interface SiteSettingAdminDto {
+  key: string;
+  value: unknown;
+  description?: string | null;
+  publicSetting: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpsertSiteSettingRequest {
+  value: unknown;
+  description?: string | null;
+  publicSetting?: boolean | null;
+}

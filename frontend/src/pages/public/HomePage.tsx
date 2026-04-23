@@ -8,21 +8,22 @@ import {
   useHomePayload,
   useProductList,
 } from '@/hooks/useCatalog';
+import { useSeo } from '@/hooks/useSeo';
 
 /**
- * Homepage composition:
- *  1. Hero slider              (from /public/home)
- *  2. Featured categories      (from /public/categories)
- *  3. Editable content blocks  (from /public/home.sections — text / promo / cta / ...)
- *  4. Featured products grid   (from /public/products?featured=true)
- *
- * Each feature component owns its own loading + empty + error presentation so
- * the page reads linearly.
+ * Homepage composition. Each child owns its own loading + empty + error
+ * presentation so the page reads linearly.
  */
 export function HomePage() {
-  const home       = useHomePayload();
-  const tree       = useCategoryTree();
-  const featured   = useProductList({ featured: true, size: 8, sort: 'publishedAt,desc' });
+  useSeo({
+    bareTitle: true,
+    title: 'Ebella — Premium Furniture',
+    description: 'Premium mattresses, office, and home furniture, designed to last.',
+  });
+
+  const home     = useHomePayload();
+  const tree     = useCategoryTree();
+  const featured = useProductList({ featured: true, size: 8, sort: 'publishedAt,desc' });
 
   if (home.isError) {
     return (

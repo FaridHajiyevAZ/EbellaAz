@@ -1,6 +1,12 @@
 import { Container } from '@/components/ui/Container';
+import { useSeo } from '@/hooks/useSeo';
 
 export function AboutPage() {
+  useSeo({
+    title: 'About',
+    description: 'Hand-finished furniture made in small batches in Baku.',
+  });
+
   return (
     <Container className="max-w-3xl py-16 md:py-24">
       <span className="text-eyebrow uppercase text-subtle">About Ebella</span>
