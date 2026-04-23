@@ -1,6 +1,7 @@
 package com.company.furniturecatalog.mapper;
 
 import com.company.furniturecatalog.domain.ContactInfo;
+import com.company.furniturecatalog.dto.admin.request.CreateContactInfoRequest;
 import com.company.furniturecatalog.dto.admin.request.UpdateContactInfoRequest;
 import com.company.furniturecatalog.dto.admin.response.ContactInfoAdminDto;
 import com.company.furniturecatalog.dto.publicapi.ContactInfoPublicDto;
@@ -14,6 +15,8 @@ import java.util.List;
 
 @Mapper(config = CatalogMapperConfig.class)
 public interface ContactInfoMapper {
+
+    ContactInfo toEntity(CreateContactInfoRequest request);
 
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "label",          source = "label")

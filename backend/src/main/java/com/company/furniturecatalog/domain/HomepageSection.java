@@ -42,6 +42,14 @@ public class HomepageSection extends SoftDeletableEntity {
     @Column(name = "subtitle", length = 400)
     private String subtitle;
 
+    /** Rich/plain text body used by TEXT_BLOCK, PROMO_BANNER and friends. */
+    @Column(name = "body", columnDefinition = "text")
+    private String body;
+
+    /** Optional section-level hero image (e.g. PROMO_BANNER background). */
+    @Column(name = "image_key", columnDefinition = "text")
+    private String imageKey;
+
     /** Type-specific options (product ids to feature, category ids, image keys, ...). */
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "config", columnDefinition = "jsonb", nullable = false)

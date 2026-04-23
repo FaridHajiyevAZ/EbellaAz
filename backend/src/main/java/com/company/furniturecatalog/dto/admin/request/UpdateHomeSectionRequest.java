@@ -11,6 +11,8 @@ public record UpdateHomeSectionRequest(
         HomeSectionType sectionType,
         @Size(max = 200) String title,
         @Size(max = 400) String subtitle,
+        String body,
+        String imageKey,
         Map<String, Object> config,
         @PositiveOrZero Integer sortOrder,
         ContentStatus status
