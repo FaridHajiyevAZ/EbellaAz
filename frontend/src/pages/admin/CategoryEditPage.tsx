@@ -19,7 +19,7 @@ import {
   useCreateCategory,
   useUpdateCategory,
 } from '@/hooks/useAdminCategories';
-import { AppApiError } from '@/api/client';
+import { apiErrorMessage, applyBackendFieldErrors } from '@/utils/apiErrors';
 import type { CategoryAdminDto, ContentStatus, UUID } from '@/types/api';
 
 /* -------------------------------- schema -------------------------------- */
@@ -90,7 +90,8 @@ function CategoryEditor({ categoryId }: { categoryId?: UUID }) {
         toast.success(`"${updated.name}" saved`);
       }
     } catch (err) {
-      applyBackendErrors(err, form);
+      applyBackendFieldErrors(err, form, FIELD_MAP);
+      toast.error(apiErrorMessage(err, 'Could not save'));
     }
   });
 
@@ -292,43 +293,17 @@ function emptyStringToNull(v: unknown): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-/** Maps backend ApiError -> RHF field errors (and a root fallback). */
-function applyBackendErrors(err: unknown, form: ReturnType<typeof useForm<FormValues>>) {
-  if (!(err instanceof AppApiError)) {
-    form.setError('root', { message: 'Something went wrong. Please try again.' });
-    return;
-  }
-  if (err.fieldErrors && err.fieldErrors.length > 0) {
-    let anyMapped = false;
-    for (const fe of err.fieldErrors) {
-      const field = mapBackendField(fe.field);
-      if (field) {
-        form.setError(field as keyof FormValues, { message: fe.message });
-        anyMapped = true;
-      }
-    }
-    if (!anyMapped) {
-      form.setError('root', { message: err.message });
-    }
-    return;
-  }
-  form.setError('root', { message: err.message });
-}
-
-/** Translate backend field paths to form field names. */
-function mapBackendField(backendField: string): keyof FormValues | null {
-  const known: Record<string, keyof FormValues> = {
-    name: 'name',
-    slug: 'slug',
-    parentId: 'parentId',
-    description: 'description',
-    sortOrder: 'sortOrder',
-    status: 'active',
-    metaTitle: 'metaTitle',
-    metaDescription: 'metaDescription',
-  };
-  return known[backendField] ?? null;
-}
+/** Backend field paths -> form field names. Used by applyBackendFieldErrors. */
+const FIELD_MAP: Partial<Record<string, keyof FormValues>> = {
+  name: 'name',
+  slug: 'slug',
+  parentId: 'parentId',
+  description: 'description',
+  sortOrder: 'sortOrder',
+  status: 'active',
+  metaTitle: 'metaTitle',
+  metaDescription: 'metaDescription',
+};
 
 function EditorSkeleton() {
   return (

@@ -1,15 +1,16 @@
 import { Link, useParams } from 'react-router-dom';
-import { ChevronRight } from 'lucide-react';
 import { Container } from '@/components/ui/Container';
 import { Badge } from '@/components/ui/Badge';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { ErrorState } from '@/components/ui/ErrorState';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { Breadcrumbs, BreadcrumbItem } from '@/components/ui/Breadcrumbs';
 import { ProductGallery } from '@/features/catalog/ProductGallery';
 import { ColorVariationSelector } from '@/features/catalog/ColorVariationSelector';
 import { WhatsAppInquiryButton } from '@/features/catalog/WhatsAppInquiryButton';
 import { useProductDetail } from '@/hooks/useCatalog';
 import { useSelectedVariation } from '@/hooks/useSelectedVariation';
+import { useSeo } from '@/hooks/useSeo';
 import type { ProductDetail, ProductVariationPublic } from '@/types/api';
 
 export function ProductPage() {
@@ -17,6 +18,11 @@ export function ProductPage() {
   const { data: product, isLoading, isError, refetch } = useProductDetail(slug);
 
   const { selected, selectById, images } = useSelectedVariation(product);
+
+  useSeo({
+    title: product?.name,
+    description: product?.shortDescription ?? undefined,
+  });
 
   if (isLoading) return <ProductPageSkeleton />;
 
@@ -43,7 +49,7 @@ export function ProductPage() {
   return (
     <>
       <Container className="py-8 pb-24 md:py-12 md:pb-16">
-        <Breadcrumbs product={product} />
+        <Breadcrumbs items={breadcrumbItemsFor(product)} />
 
         <div className="mt-6 grid gap-10 md:grid-cols-2 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
           <ProductGallery
@@ -220,32 +226,15 @@ function StickyMobileCta({
 
 /* ------------------------------ misc ----------------------------- */
 
-function Breadcrumbs({ product }: { product: ProductDetail }) {
-  const parentPath: string[] = [];
-  return (
-    <nav aria-label="Breadcrumb" className="text-xs text-muted">
-      <ol className="flex flex-wrap items-center gap-1.5">
-        <li>
-          <Link to="/" className="hover:text-fg">Home</Link>
-        </li>
-        {product.breadcrumbs.map((b) => {
-          parentPath.push(b.slug);
-          return (
-            <li key={b.id} className="flex items-center gap-1.5">
-              <ChevronRight className="h-3 w-3 text-subtle" />
-              <Link to={`/category/${parentPath.join('/')}`} className="hover:text-fg">
-                {b.name}
-              </Link>
-            </li>
-          );
-        })}
-        <li className="flex items-center gap-1.5">
-          <ChevronRight className="h-3 w-3 text-subtle" />
-          <span className="text-fg">{product.name}</span>
-        </li>
-      </ol>
-    </nav>
-  );
+function breadcrumbItemsFor(product: ProductDetail): BreadcrumbItem[] {
+  const items: BreadcrumbItem[] = [{ label: 'Home', to: '/' }];
+  const parents: string[] = [];
+  for (const b of product.breadcrumbs) {
+    parents.push(b.slug);
+    items.push({ label: b.name, to: `/category/${parents.join('/')}` });
+  }
+  items.push({ label: product.name }); // current
+  return items;
 }
 
 function ProductPageSkeleton() {
