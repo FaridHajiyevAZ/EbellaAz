@@ -1,0 +1,27 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16-alpine:///furniture_catalog_test
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    username: test
+    password: test
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+app:
+  cors:
+    allowed-origins: http://localhost:5173
+  storage:
+    provider: local
+    local:
+      root-path: ./build/test-uploads
+      public-base-url: http://localhost:8080/media
+      url-path: /media
+  security:
+    jwt:
+      secret: test-secret-must-be-at-least-32-characters-long
+      access-token-ttl: PT1H
+      refresh-token-ttl: P7D
+      issuer: furniture-catalog-test

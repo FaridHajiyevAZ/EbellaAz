@@ -1,0 +1,27 @@
+# Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build output
+*.log
+logs/
+
+# Local uploads (storage)
+var/
+uploads/
+
+# Env files
+.env
+.env.local

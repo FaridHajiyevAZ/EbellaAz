@@ -1,0 +1,63 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      maximum-pool-size: ${DB_POOL_MAX_SIZE:20}
+      minimum-idle: ${DB_POOL_MIN_IDLE:5}
+      connection-timeout: 30000
+      leak-detection-threshold: 30000
+
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        generate_statistics: false
+
+  devtools:
+    restart:
+      enabled: false
+    livereload:
+      enabled: false
+
+server:
+  error:
+    include-message: never
+    include-binding-errors: never
+    include-stacktrace: never
+  tomcat:
+    accesslog:
+      enabled: true
+      pattern: "%h %l %u %t \"%r\" %s %b %D"
+
+app:
+  cors:
+    # MUST be set explicitly in prod; no localhost fallback
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS}
+  storage:
+    provider: ${APP_STORAGE_PROVIDER:local}
+    local:
+      root-path: ${APP_STORAGE_LOCAL_ROOT:/var/app/uploads}
+      public-base-url: ${APP_STORAGE_PUBLIC_BASE_URL}
+
+springdoc:
+  api-docs:
+    enabled: ${SPRINGDOC_ENABLED:false}
+  swagger-ui:
+    enabled: ${SPRINGDOC_ENABLED:false}
+
+management:
+  endpoint:
+    health:
+      show-details: never
+
+logging:
+  level:
+    root: WARN
+    com.company.furniturecatalog: INFO
+    org.hibernate.SQL: WARN
+    org.springframework.web: WARN
+  pattern:
+    console: '{"ts":"%d{yyyy-MM-dd''T''HH:mm:ss.SSSXXX}","level":"%level","logger":"%logger{36}","thread":"%thread","msg":"%replace(%msg){''"'',''\"''}"}%n'
