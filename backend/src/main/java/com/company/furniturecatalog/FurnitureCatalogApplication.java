@@ -1,5 +1,6 @@
 package com.company.furniturecatalog;
 
+import com.company.furniturecatalog.config.properties.BootstrapAdminProperties;
 import com.company.furniturecatalog.config.properties.CorsProperties;
 import com.company.furniturecatalog.config.properties.JwtProperties;
 import com.company.furniturecatalog.config.properties.StorageProperties;
@@ -11,7 +12,8 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 @ConfigurationPropertiesScan(basePackageClasses = {
         CorsProperties.class,
         StorageProperties.class,
-        JwtProperties.class
+        JwtProperties.class,
+        BootstrapAdminProperties.class
 })
 public class FurnitureCatalogApplication {
 
