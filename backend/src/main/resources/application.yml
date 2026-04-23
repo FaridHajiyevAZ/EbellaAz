@@ -126,4 +126,4 @@ logging:
     root: INFO
     com.company.furniturecatalog: INFO
   pattern:
-    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSS} %-5level [%thread] %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd'T'HH:mm:ss.SSS} %-5level [%thread] %X{traceId:-} %logger{36} - %msg%n"

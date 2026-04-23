@@ -60,4 +60,4 @@ logging:
     org.hibernate.SQL: WARN
     org.springframework.web: WARN
   pattern:
-    console: '{"ts":"%d{yyyy-MM-dd''T''HH:mm:ss.SSSXXX}","level":"%level","logger":"%logger{36}","thread":"%thread","msg":"%replace(%msg){''"'',''\"''}"}%n'
+    console: '{"ts":"%d{yyyy-MM-dd''T''HH:mm:ss.SSSXXX}","level":"%level","logger":"%logger{36}","thread":"%thread","traceId":"%X{traceId:-}","msg":"%replace(%msg){''"'',''\"''}"}%n'
