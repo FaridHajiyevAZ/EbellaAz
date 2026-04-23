@@ -1,0 +1,38 @@
+# Version control
+.git/
+.gitignore
+.github/
+
+# Docs / infra not needed inside the image
+README.md
+DEPLOYMENT.md
+infra/
+
+# Backend build artefacts and IDE noise
+backend/target/
+backend/.idea/
+backend/.vscode/
+backend/*.iml
+backend/var/
+backend/logs/
+
+# Frontend build artefacts and deps
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+
+# Env files (never bake into the image)
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# OS clutter
+.DS_Store
+Thumbs.db
