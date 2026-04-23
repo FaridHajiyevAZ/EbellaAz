@@ -169,3 +169,44 @@ export interface TokenResponse {
   expiresIn: number;
   admin: AdminProfile;
 }
+
+// ---- Admin: Catalog ----------------------------------------------------
+
+export type ContentStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+
+export interface CategoryAdminDto {
+  id: UUID;
+  parentId?: UUID | null;
+  name: string;
+  slug: string;
+  description?: string | null;
+  coverImageKey?: string | null;
+  coverImageUrl?: string | null;
+  path?: string | null;
+  depth: number;
+  sortOrder: number;
+  status: ContentStatus;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt?: string | null;
+}
+
+export interface CreateCategoryRequest {
+  parentId?: UUID | null;
+  name: string;
+  slug: string;
+  description?: string | null;
+  coverImageKey?: string | null;
+  sortOrder?: number | null;
+  status?: ContentStatus | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
+}
+
+export interface UpdateCategoryRequest extends Partial<CreateCategoryRequest> {}
+
+export interface ReorderRequest {
+  items: { id: UUID; sortOrder: number }[];
+}
