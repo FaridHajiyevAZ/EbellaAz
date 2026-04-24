@@ -222,11 +222,11 @@ function resolvePath(
 ): { node: CategoryTreeNode | null; trail: CategoryTreeNode[] } {
   if (slugPath.length === 0) return { node: null, trail: [] };
   const trail: CategoryTreeNode[] = [];
-  let cursor = tree.find((n) => n.slug === slugPath[0]) ?? null;
+  let cursor: CategoryTreeNode | undefined = tree.find((n) => n.slug === slugPath[0]);
   if (!cursor) return { node: null, trail };
   trail.push(cursor);
   for (let i = 1; i < slugPath.length; i++) {
-    const next = cursor.children.find((c) => c.slug === slugPath[i]) ?? null;
+    const next: CategoryTreeNode | undefined = cursor.children.find((c) => c.slug === slugPath[i]);
     if (!next) break;
     trail.push(next);
     cursor = next;

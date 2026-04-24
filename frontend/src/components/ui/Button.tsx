@@ -37,10 +37,17 @@ export interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonStyles> {
   loading?: boolean;
+  /**
+   * Reserved for a future Radix-Slot-based "render as child" pattern.
+   * Accepted so existing call sites don't break; currently ignored —
+   * passing a <Link>/<a> as children already works since the Button
+   * renders a <button> wrapper.
+   */
+  asChild?: boolean;
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, loading, disabled, children, ...props }, ref) => (
+  ({ className, variant, size, loading, disabled, asChild: _asChild, children, ...props }, ref) => (
     <button
       ref={ref}
       className={cn(buttonStyles({ variant, size }), className)}

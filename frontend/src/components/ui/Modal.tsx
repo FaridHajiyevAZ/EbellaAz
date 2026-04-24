@@ -57,7 +57,7 @@ export function Modal({
             'sm:mx-auto',
           )}
         >
-          {(title || onClose) && (
+          {title && (
             <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
               <div>
                 {title && (
