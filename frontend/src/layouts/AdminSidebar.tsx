@@ -16,16 +16,25 @@ import { Button } from '@/components/ui/Button';
 import { cn } from '@/utils/cn';
 import type { AdminProfile } from '@/types/api';
 
-export const ADMIN_NAV = [
-  { to: '/admin',               label: 'Dashboard',        icon: LayoutDashboard, end: true },
-  { to: '/admin/categories',    label: 'Categories',       icon: FolderTree },
-  { to: '/admin/products',      label: 'Products',         icon: Package },
-  { to: '/admin/variations',    label: 'Variations',       icon: Palette },
-  { to: '/admin/hero-slides',   label: 'Hero Slides',      icon: Sparkles },
-  { to: '/admin/home-sections', label: 'Homepage Content', icon: FileText },
-  { to: '/admin/media',         label: 'Media',            icon: Images },
+import type { LucideIcon } from 'lucide-react';
+
+interface AdminNavItem {
+  to: string;
+  label: string;
+  icon: LucideIcon;
+  end?: boolean;
+}
+
+export const ADMIN_NAV: readonly AdminNavItem[] = [
+  { to: '/admin',               label: 'Dashboard',          icon: LayoutDashboard, end: true },
+  { to: '/admin/categories',    label: 'Categories',         icon: FolderTree },
+  { to: '/admin/products',      label: 'Products',           icon: Package },
+  { to: '/admin/variations',    label: 'Variations',         icon: Palette },
+  { to: '/admin/hero-slides',   label: 'Hero Slides',        icon: Sparkles },
+  { to: '/admin/home-sections', label: 'Homepage Content',   icon: FileText },
+  { to: '/admin/media',         label: 'Media',              icon: Images },
   { to: '/admin/settings',      label: 'Contact & Settings', icon: Settings },
-] as const;
+];
 
 interface Props {
   admin: AdminProfile | null;
