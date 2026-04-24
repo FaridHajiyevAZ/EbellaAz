@@ -12,7 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -104,8 +103,6 @@ public class Category extends SoftDeletableEntity {
         child.setParent(null);
     }
 
-    @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.NONE)
     public boolean isRoot() {
         return parent == null;
     }
