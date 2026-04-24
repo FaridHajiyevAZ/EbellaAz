@@ -12,7 +12,8 @@ ENV VITE_PUBLIC_SITE_URL=$VITE_PUBLIC_SITE_URL
 
 # Cache npm install
 COPY package*.json ./
-RUN npm ci
+# `npm install` works with or without a committed package-lock.json.
+RUN npm install --no-audit --no-fund
 
 COPY . .
 RUN npm run build
