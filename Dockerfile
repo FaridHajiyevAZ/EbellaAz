@@ -29,7 +29,10 @@ ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
 ENV VITE_PUBLIC_SITE_URL=$VITE_PUBLIC_SITE_URL
 
 COPY frontend/package*.json ./
-RUN npm ci --no-audit --no-fund
+# `npm ci` requires a package-lock.json; `npm install` works with or without
+# one. Falling back to `install` keeps the build working when the repo ships
+# without a lock file. Commit a lock file later for reproducible installs.
+RUN npm install --no-audit --no-fund
 
 COPY frontend/ ./
 RUN npm run build
