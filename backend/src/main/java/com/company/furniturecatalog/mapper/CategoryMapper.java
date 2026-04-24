@@ -55,7 +55,7 @@ public interface CategoryMapper {
 
     // --- Admin responses ------------------------------------------------
 
-    @Mapping(target = "parentId",        source = "parent.id")
+    @Mapping(target = "parentId",        source = "category.parent.id")
     @Mapping(target = "coverImageUrl",   expression = "java(urlResolver.publicUrl(category.getCoverImageKey()))")
     CategoryAdminDto toAdminDto(Category category, StorageUrlResolver urlResolver);
 
