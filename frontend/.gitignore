@@ -8,6 +8,17 @@ coverage
 .env.local
 .env.*.local
 
+# tsc incremental + project-references output (kept out of node_modules/.tmp).
+*.tsbuildinfo
+node_modules/.tmp
+
+# Belt-and-braces: if a misconfigured tsc emits next to sources, never commit it.
+src/**/*.js
+src/**/*.d.ts
+!src/vite-env.d.ts
+vite.config.js
+vite.config.d.ts
+
 # Editor
 .vscode/*
 !.vscode/extensions.json

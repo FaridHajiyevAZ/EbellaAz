@@ -16,6 +16,8 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "useDefineForClassFields": true,
+    "noEmit": true,
+    "tsBuildInfoFile": "node_modules/.tmp/tsc.tsbuildinfo",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]

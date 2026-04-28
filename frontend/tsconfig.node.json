@@ -6,6 +6,10 @@
     "strict": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "outDir": "node_modules/.tmp/tsc-node",
+    "tsBuildInfoFile": "node_modules/.tmp/tsc-node.tsbuildinfo",
     "types": ["node"]
   },
   "include": ["vite.config.ts"]
